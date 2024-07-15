@@ -1,0 +1,133 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Resources:
+  BooksTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: Books
+      AttributeDefinitions:
+      - AttributeName: book_id
+        AttributeType: S
+      KeySchema:
+      - AttributeName: book_id
+        KeyType: HASH
+      BillingMode: PAY_PER_REQUEST
+  UsersTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: Users
+      AttributeDefinitions:
+      - AttributeName: user_id
+        AttributeType: S
+      KeySchema:
+      - AttributeName: user_id
+        KeyType: HASH
+      BillingMode: PAY_PER_REQUEST
+  LibraryImagesBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: personal-library-images
+  AddBookFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: add_book.lambda_handler
+      Runtime: python3.12
+      CodeUri: AddBookFunction
+      MemorySize: 128
+      Timeout: 10
+      Policies:
+      - AmazonDynamoDBFullAccess
+      - AmazonS3FullAccess
+      Environment:
+        Variables:
+          BOOKS_TABLE:
+            Ref: BooksTable
+    Metadata:
+      SamResourceId: AddBookFunction
+  GetBookFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: get_book.lambda_handler
+      Runtime: python3.12
+      CodeUri: GetBookFunction
+      MemorySize: 128
+      Timeout: 10
+      Policies:
+      - AmazonDynamoDBFullAccess
+      - AmazonS3FullAccess
+      Environment:
+        Variables:
+          BOOKS_TABLE:
+            Ref: BooksTable
+    Metadata:
+      SamResourceId: GetBookFunction
+  UpdateBookFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: update_book.lambda_handler
+      Runtime: python3.12
+      CodeUri: UpdateBookFunction
+      MemorySize: 128
+      Timeout: 10
+      Policies:
+      - AmazonDynamoDBFullAccess
+      - AmazonS3FullAccess
+      Environment:
+        Variables:
+          BOOKS_TABLE:
+            Ref: BooksTable
+    Metadata:
+      SamResourceId: UpdateBookFunction
+  DeleteBookFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: delete_book.lambda_handler
+      Runtime: python3.12
+      CodeUri: DeleteBookFunction
+      MemorySize: 128
+      Timeout: 10
+      Policies:
+      - AmazonDynamoDBFullAccess
+      - AmazonS3FullAccess
+      Environment:
+        Variables:
+          BOOKS_TABLE:
+            Ref: BooksTable
+    Metadata:
+      SamResourceId: DeleteBookFunction
+  ApiGateway:
+    Type: AWS::Serverless::Api
+    Properties:
+      Name: LibraryAPI
+      StageName: dev
+      DefinitionBody:
+        swagger: '2.0'
+        info:
+          title: LibraryAPI
+          version: '1.0'
+        paths:
+          /books:
+            post:
+              x-amazon-apigateway-integration:
+                uri:
+                  Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${AddBookFunction.Arn}/invocations
+                httpMethod: POST
+                type: aws_proxy
+            get:
+              x-amazon-apigateway-integration:
+                uri:
+                  Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetBookFunction.Arn}/invocations
+                httpMethod: GET
+                type: aws_proxy
+            put:
+              x-amazon-apigateway-integration:
+                uri:
+                  Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${UpdateBookFunction.Arn}/invocations
+                httpMethod: PUT
+                type: aws_proxy
+            delete:
+              x-amazon-apigateway-integration:
+                uri:
+                  Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${DeleteBookFunction.Arn}/invocations
+                httpMethod: DELETE
+                type: aws_proxy
