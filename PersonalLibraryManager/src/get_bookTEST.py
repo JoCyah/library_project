@@ -17,17 +17,25 @@ def lambda_handler(event, context):
     dict: The response dictionary with the status code and book details.
     """
     # Get the book ID from the query string parameters
-    book_id = event['queryStringParameters']['book_id']
+    
+    
+    message = 'Hello World!'
+    if 'queryStringParameters' in event:
+        if event['queryStringParameters'] is not None:
+            if 'book_id' in event['queryStringParameters']:
+                if event['queryStringParameters']['book_id'] is not None:
+                    book_id = event['queryStringParameters']['book_id']
+                    message = book_id
     
     # Retrieve the book from the DynamoDB table
-    response = table.get_item(
-        Key={
-            'book_id': book_id
-        }
-    )
-    
+    #response = table.get_item(
+     #   Key={
+      #      'book_id': book_id
+       # }
+    #)
+    response = message
     # Return the book details in the response
     return {
         'statusCode': 200,
-        'body': json.dumps(response.get('Item'))
+        'body': response
     }

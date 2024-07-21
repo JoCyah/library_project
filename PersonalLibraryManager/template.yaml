@@ -1,6 +1,7 @@
-# AWS SAM Template for Personal Library Manager Application
-# This template deploys a serverless application that includes an API Gateway, Lambda functions,
-# DynamoDB tables for storing book and user data, and the S3 bucket for storing book cover images.
+#AWS SAM Template for Personal Library Manager Application
+#This template deploys a serverless application that includes an API Gateway, Lambda functions,
+#DynamoDB tables for storing book and user data, and the S3 bucket for storing book cover images.
+
 
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: 'AWS::Serverless-2016-10-31'
@@ -50,6 +51,7 @@ Resources:
       Policies:
         - AmazonDynamoDBFullAccess
         - AmazonS3FullAccess
+        - AWSLambdaExecute
       Environment:
         Variables:
           BOOKS_TABLE: !Ref BooksTable
@@ -66,6 +68,7 @@ Resources:
       Policies:
         - AmazonDynamoDBFullAccess
         - AmazonS3FullAccess
+        - AWSLambdaExecute
       Environment:
         Variables:
           BOOKS_TABLE: !Ref BooksTable
@@ -82,6 +85,7 @@ Resources:
       Policies:
         - AmazonDynamoDBFullAccess
         - AmazonS3FullAccess
+        - AWSLambdaExecute
       Environment:
         Variables:
           BOOKS_TABLE: !Ref BooksTable
@@ -98,6 +102,7 @@ Resources:
       Policies:
         - AmazonDynamoDBFullAccess
         - AmazonS3FullAccess
+        - AWSLambdaExecute
       Environment:
         Variables:
           BOOKS_TABLE: !Ref BooksTable

@@ -1,8 +1,10 @@
 import json
 import boto3
 
-# Initialize DynamoDB resource
+# Initialize the DynamoDB resource
 dynamodb = boto3.resource('dynamodb')
+
+# Reference the Books table
 table = dynamodb.Table('Books')
 
 def lambda_handler(event, context):
@@ -26,8 +28,16 @@ def lambda_handler(event, context):
         }
     )
     
-    # Return the book details in the response
-    return {
-        'statusCode': 200,
-        'body': json.dumps(response.get('Item'))
-    }
+    # Check if the book was found
+    if 'Item' in response:
+        # Return the book details in the response
+        return {
+            'statusCode': 200,
+            'body': json.dumps(response['Item'])
+        }
+    else:
+        # Return a not found response if the book does not exist
+        return {
+            'statusCode': 404,
+            'body': json.dumps({'error': 'Book not found'})
+        }
